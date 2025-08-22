@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
-const API_BASE = 'http://localhost:4000/api'
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000/api'
 
 function useForm(initial) {
   const [values, setValues] = useState(initial)
@@ -37,24 +37,30 @@ function ActivityForm({ onSubmitSuccess }) {
     const eMap = validate()
     setErrors(eMap)
     if (Object.keys(eMap).length) return
-    const payload = {
-      petName: values.petName.trim(),
-      type: values.type,
-      amount: Number(values.amount),
-      dateTime: values.dateTime ? new Date(values.dateTime).toISOString() : undefined,
+    
+    try {
+      const payload = {
+        petName: values.petName.trim(),
+        type: values.type,
+        amount: Number(values.amount),
+        dateTime: values.dateTime ? new Date(values.dateTime).toISOString() : undefined,
+      }
+      const res = await fetch(`${API_BASE}/activities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Network error' }))
+        alert(err.error || 'Failed to log activity')
+        return
+      }
+      setValues((v) => ({ ...v, amount: '' }))
+      onSubmitSuccess?.()
+    } catch (error) {
+      console.error('Error submitting activity:', error)
+      alert('Failed to log activity. Please try again.')
     }
-    const res = await fetch(`${API_BASE}/activities`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}))
-      alert(err.error || 'Failed to log activity')
-      return
-    }
-    setValues((v) => ({ ...v, amount: '' }))
-    onSubmitSuccess?.()
   }
 
   return (
@@ -93,18 +99,39 @@ function ActivityForm({ onSubmitSuccess }) {
 function Summary({ filterPet }) {
   const [summary, setSummary] = useState({ totalWalkMinutes: 0, meals: 0, meds: 0 })
   const [needsWalk, setNeedsWalk] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
 
   const load = async () => {
-    const qs = filterPet ? `?petName=${encodeURIComponent(filterPet)}` : ''
-    const res = await fetch(`${API_BASE}/summary/today${qs}`)
-    const data = await res.json()
-    setSummary(data)
-    const res2 = await fetch(`${API_BASE}/needs-walk${qs}`)
-    const data2 = await res2.json()
-    setNeedsWalk(Boolean(data2.shouldPrompt))
+    try {
+      const params = new URLSearchParams()
+      if (filterPet) params.append('petName', filterPet)
+      if (selectedDate) params.append('date', selectedDate)
+      
+      const qs = params.toString() ? `?${params.toString()}` : ''
+      const res = await fetch(`${API_BASE}/summary${qs}`)
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`)
+      }
+      const data = await res.json()
+      setSummary(data)
+      
+      // Only check needs-walk for today
+      if (selectedDate === new Date().toISOString().split('T')[0]) {
+        const res2 = await fetch(`${API_BASE}/needs-walk${filterPet ? `?petName=${encodeURIComponent(filterPet)}` : ''}`)
+        if (res2.ok) {
+          const data2 = await res2.json()
+          setNeedsWalk(Boolean(data2.shouldPrompt))
+        }
+      } else {
+        setNeedsWalk(false)
+      }
+    } catch (error) {
+      console.error('Error loading summary:', error)
+      setSummary({ totalWalkMinutes: 0, meals: 0, meds: 0 })
+    }
   }
 
-  useEffect(() => { load() }, [filterPet])
+  useEffect(() => { load() }, [filterPet, selectedDate])
 
   const walkProgress = useMemo(() => {
     const goal = 30
@@ -114,7 +141,17 @@ function Summary({ filterPet }) {
 
   return (
     <div className="card">
-      <div className="title">Today's Summary{filterPet ? ` · ${filterPet}` : ''}</div>
+      <div className="title">
+        Summary{filterPet ? ` · ${filterPet}` : ''}
+        <div style={{ fontSize: 14, fontWeight: 400, marginTop: 4 }}>
+          <input 
+            type="date" 
+            value={selectedDate} 
+            onChange={(e) => setSelectedDate(e.target.value)}
+            style={{ fontSize: 12, padding: 4 }}
+          />
+        </div>
+      </div>
       <div className="subtitle">Walk: {summary.totalWalkMinutes} min | Meals: {summary.meals} | Meds: {summary.meds}</div>
       <div className="bar" style={{ '--progress': `${walkProgress}%` }}>
         <span></span>

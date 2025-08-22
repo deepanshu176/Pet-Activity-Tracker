@@ -65,17 +65,17 @@ function ActivityForm({ onSubmitSuccess }) {
 
   return (
     <div className="card">
-      <div className="title">📝 Log Activity</div>
+      <div className="title">🚀 Log New Activity</div>
       <form onSubmit={handleSubmit} noValidate>
         <div className="form-group">
-          <label htmlFor="petName">Pet Name</label>
+          <label htmlFor="petName">🐾 Pet Name</label>
           <input name="petName" id="petName" placeholder="Enter your pet's name..." value={values.petName} onChange={onChange} />
           {errors.petName && <div className="error">{errors.petName}</div>}
         </div>
 
         <div className="row">
           <div className="form-group">
-            <label htmlFor="type">Activity Type</label>
+            <label htmlFor="type">🎯 Activity Type</label>
             <select name="type" id="type" value={values.type} onChange={onChange}>
               <option value="walk">🚶 Walk (minutes)</option>
               <option value="meal">🍽️ Meal (count)</option>
@@ -83,18 +83,18 @@ function ActivityForm({ onSubmitSuccess }) {
             </select>
           </div>
           <div className="form-group">
-            <label htmlFor="amount">Duration/Quantity</label>
+            <label htmlFor="amount">📊 Duration/Quantity</label>
             <input name="amount" id="amount" type="number" inputMode="numeric" min="1" placeholder="30" value={values.amount} onChange={onChange} />
             {errors.amount && <div className="error">{errors.amount}</div>}
           </div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="dateTime">Date & Time</label>
+          <label htmlFor="dateTime">⏰ Date & Time</label>
           <input name="dateTime" id="dateTime" type="datetime-local" value={values.dateTime} onChange={onChange} />
         </div>
 
-        <button type="submit">✨ Save Activity</button>
+        <button type="submit">⚡ Save Activity</button>
       </form>
     </div>
   )
@@ -146,7 +146,7 @@ function Summary({ filterPet }) {
   return (
     <div className="card">
       <div className="title">
-        📊 Activity Summary{filterPet ? ` · ${filterPet}` : ''}
+        🌟 Activity Summary{filterPet ? ` · ${filterPet}` : ''}
         <div className="date-picker">
           <label htmlFor="summaryDate">📅 Select Date:</label>
           <input 
@@ -203,6 +203,11 @@ function App() {
 
   return (
     <div>
+      {/* Floating particles */}
+      <div className="particle"></div>
+      <div className="particle"></div>
+      <div className="particle"></div>
+      
       <div className="app-header">
         <h1 className="app-title">Pet Activity Tracker</h1>
       </div>

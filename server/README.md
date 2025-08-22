@@ -1,6 +1,6 @@
 # Pet Activity Tracker (Server)
 
-Express server with in-memory arrays for activities and chat history.
+Express server with in-memory arrays for activities.
 
 ## Run
 
@@ -15,5 +15,4 @@ Endpoints:
 - POST `/api/activities`
 - GET `/api/activities?petName=&today=true`
 - GET `/api/summary/today?petName=`
-- POST `/api/chat`
 - GET `/api/needs-walk?petName=`

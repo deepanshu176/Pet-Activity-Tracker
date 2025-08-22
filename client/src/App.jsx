@@ -65,32 +65,36 @@ function ActivityForm({ onSubmitSuccess }) {
 
   return (
     <div className="card">
-      <div className="title">Log Activity</div>
+      <div className="title">📝 Log Activity</div>
       <form onSubmit={handleSubmit} noValidate>
-        <label htmlFor="petName">Pet name</label>
-        <input name="petName" id="petName" placeholder="Rex" value={values.petName} onChange={onChange} />
-        {errors.petName && <div className="error">{errors.petName}</div>}
+        <div className="form-group">
+          <label htmlFor="petName">Pet Name</label>
+          <input name="petName" id="petName" placeholder="Enter your pet's name..." value={values.petName} onChange={onChange} />
+          {errors.petName && <div className="error">{errors.petName}</div>}
+        </div>
 
-        <div className="row" style={{ marginTop: 12 }}>
-          <div>
-            <label htmlFor="type">Activity</label>
+        <div className="row">
+          <div className="form-group">
+            <label htmlFor="type">Activity Type</label>
             <select name="type" id="type" value={values.type} onChange={onChange}>
-              <option value="walk">Walk (minutes)</option>
-              <option value="meal">Meal (count)</option>
-              <option value="medication">Medication (count)</option>
+              <option value="walk">🚶 Walk (minutes)</option>
+              <option value="meal">🍽️ Meal (count)</option>
+              <option value="medication">💊 Medication (count)</option>
             </select>
           </div>
-          <div>
-            <label htmlFor="amount">Duration/Qty</label>
-            <input name="amount" id="amount" type="number" inputMode="numeric" min="1" value={values.amount} onChange={onChange} />
+          <div className="form-group">
+            <label htmlFor="amount">Duration/Quantity</label>
+            <input name="amount" id="amount" type="number" inputMode="numeric" min="1" placeholder="30" value={values.amount} onChange={onChange} />
             {errors.amount && <div className="error">{errors.amount}</div>}
           </div>
         </div>
 
-        <label htmlFor="dateTime" style={{ marginTop: 12 }}>Date/Time</label>
-        <input name="dateTime" id="dateTime" type="datetime-local" value={values.dateTime} onChange={onChange} />
+        <div className="form-group">
+          <label htmlFor="dateTime">Date & Time</label>
+          <input name="dateTime" id="dateTime" type="datetime-local" value={values.dateTime} onChange={onChange} />
+        </div>
 
-        <button type="submit" style={{ marginTop: 12 }}>Save</button>
+        <button type="submit">✨ Save Activity</button>
       </form>
     </div>
   )
@@ -142,23 +146,49 @@ function Summary({ filterPet }) {
   return (
     <div className="card">
       <div className="title">
-        Summary{filterPet ? ` · ${filterPet}` : ''}
-        <div style={{ fontSize: 14, fontWeight: 400, marginTop: 4 }}>
+        📊 Activity Summary{filterPet ? ` · ${filterPet}` : ''}
+        <div className="date-picker">
+          <label htmlFor="summaryDate">📅 Select Date:</label>
           <input 
+            id="summaryDate"
             type="date" 
             value={selectedDate} 
             onChange={(e) => setSelectedDate(e.target.value)}
-            style={{ fontSize: 12, padding: 4 }}
           />
         </div>
       </div>
-      <div className="subtitle">Walk: {summary.totalWalkMinutes} min | Meals: {summary.meals} | Meds: {summary.meds}</div>
-      <div className="bar" style={{ '--progress': `${walkProgress}%` }}>
-        <span></span>
+      
+      <div className="summary-stats">
+        <div className="stat-item">
+          <div className="stat-icon">🚶</div>
+          <div className="stat-value">{summary.totalWalkMinutes}</div>
+          <div className="stat-label">Walk Minutes</div>
+        </div>
+        <div className="stat-item">
+          <div className="stat-icon">🍽️</div>
+          <div className="stat-value">{summary.meals}</div>
+          <div className="stat-label">Meals</div>
+        </div>
+        <div className="stat-item">
+          <div className="stat-icon">💊</div>
+          <div className="stat-value">{summary.meds}</div>
+          <div className="stat-label">Medications</div>
+        </div>
       </div>
+
+      <div className="progress-container">
+        <div className="progress-label">
+          <span>Daily Walk Goal Progress</span>
+          <span>{walkProgress}%</span>
+        </div>
+        <div className="bar" style={{ '--progress': `${walkProgress}%` }}>
+          <span></span>
+        </div>
+      </div>
+
       {needsWalk && (
-        <div className="error" style={{ marginTop: 8 }}>
-          {filterPet ? `${filterPet} still needs exercise today!` : 'Your pet still needs exercise today!'}
+        <div className="error">
+          ⚠️ {filterPet ? `${filterPet} still needs exercise today!` : 'Your pet still needs exercise today!'}
         </div>
       )}
     </div>
@@ -173,12 +203,24 @@ function App() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <div style={{ fontSize: 22, fontWeight: 800 }}>🐾 Pet Activity Tracker</div>
+      <div className="app-header">
+        <h1 className="app-title">Pet Activity Tracker</h1>
       </div>
+      
       <ActivityForm onSubmitSuccess={() => setReloadKey((k) => k + 1)} />
-      <label htmlFor="filter" style={{ marginBottom: 6 }}>Filter by pet</label>
-      <input id="filter" placeholder="Rex" value={petFilter} onChange={(e) => setPetFilter(e.target.value)} />
+      
+      <div className="filter-container">
+        <div className="form-group">
+          <label htmlFor="filter">🔍 Filter by Pet</label>
+          <input 
+            id="filter" 
+            placeholder="Enter pet name to filter activities..." 
+            value={petFilter} 
+            onChange={(e) => setPetFilter(e.target.value)} 
+          />
+        </div>
+      </div>
+      
       <Summary key={reloadKey} filterPet={petFilter || undefined} />
     </div>
   )

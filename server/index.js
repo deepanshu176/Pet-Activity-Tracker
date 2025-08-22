@@ -33,7 +33,6 @@ app.use((req, res, next) => {
 
 // In-memory data
 const activities = [];
-const chatHistory = [];
 
 // Helpers
 const isToday = (date) => {
@@ -132,30 +131,7 @@ app.get('/api/summary/today', (req, res) => {
 	res.json({ totalWalkMinutes, meals, meds });
 });
 
-// Simple chatbot with contextual memory (naive echo with context summary)
-app.post('/api/chat', (req, res) => {
-	const { message, petName } = req.body || {};
-	if (!message) return res.status(400).json({ error: 'message is required' });
-	const userTurn = { role: 'user', message, timestamp: new Date().toISOString(), petName: petName || null };
-	chatHistory.push(userTurn);
 
-	// Build a lightweight context summary of today's stats for the pet
-	let context = '';
-	if (petName) {
-		const todayItems = activities.filter((a) => isToday(a.dateTime) && a.petName.toLowerCase() === petName.toLowerCase());
-		const totalWalkMinutes = todayItems.filter((a) => a.type === 'walk').reduce((s, a) => s + a.amount, 0);
-		const meals = todayItems.filter((a) => a.type === 'meal').length;
-		const meds = todayItems.filter((a) => a.type === 'medication').length;
-		context = `Today for ${petName}: walk ${totalWalkMinutes} min, meals ${meals}, meds ${meds}.`;
-	}
-
-	const responseText = context
-		? `${context} You said: "${message}"`
-		: `You said: "${message}"`;
-	const assistantTurn = { role: 'assistant', message: responseText, timestamp: new Date().toISOString(), petName: petName || null };
-	chatHistory.push(assistantTurn);
-	res.json({ reply: responseText, history: chatHistory.slice(-10) });
-});
 
 // No-walk prompt check by 18:00 local time
 app.get('/api/needs-walk', (req, res) => {

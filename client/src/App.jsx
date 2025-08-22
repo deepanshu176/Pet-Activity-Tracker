@@ -165,43 +165,7 @@ function Summary({ filterPet }) {
   )
 }
 
-function Chatbot() {
-  const [petName, setPetName] = useState('')
-  const [input, setInput] = useState('')
-  const [history, setHistory] = useState([])
 
-  const send = async (e) => {
-    e.preventDefault()
-    if (!input.trim()) return
-    const res = await fetch(`${API_BASE}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: input.trim(), petName: petName || undefined }),
-    })
-    const data = await res.json()
-    setHistory((h) => [...h, { role: 'user', message: input.trim() }, { role: 'assistant', message: data.reply }])
-    setInput('')
-  }
-
-  return (
-    <div className="card">
-      <div className="title">Chatbot</div>
-      <label htmlFor="chatPet">Pet (optional)</label>
-      <input id="chatPet" placeholder="Rex" value={petName} onChange={(e) => setPetName(e.target.value)} />
-      <div className="chat" style={{ marginTop: 10 }}>
-        {history.map((m, i) => (
-          <div key={i} className={`bubble ${m.role}`}>
-            {m.message}
-          </div>
-        ))}
-      </div>
-      <form onSubmit={send} style={{ marginTop: 10 }}>
-        <input placeholder="Ask about today's activities..." value={input} onChange={(e) => setInput(e.target.value)} />
-        <button style={{ marginTop: 8 }}>Send</button>
-      </form>
-    </div>
-  )
-}
 
 function App() {
   const [petFilter, setPetFilter] = useState('')
@@ -216,7 +180,6 @@ function App() {
       <label htmlFor="filter" style={{ marginBottom: 6 }}>Filter by pet</label>
       <input id="filter" placeholder="Rex" value={petFilter} onChange={(e) => setPetFilter(e.target.value)} />
       <Summary key={reloadKey} filterPet={petFilter || undefined} />
-      <Chatbot />
     </div>
   )
 }

@@ -8,7 +8,6 @@ A full-stack web application for tracking pet activities including walks, meals,
 - **Historical Summaries**: View activity summaries for any date with the `?date=YYYY-MM-DD` parameter
 - **Pet Filtering**: Filter activities and summaries by specific pets
 - **Walk Reminders**: Automatic prompts when pets haven't been walked by 6 PM
-- **Interactive Chatbot**: Simple chatbot interface for activity queries
 - **Responsive UI**: Modern, mobile-friendly interface
 
 ## Core Requirements Met
@@ -135,16 +134,7 @@ GET /needs-walk?petName=Rex
 ```
 Returns whether a pet needs a walk reminder (after 6 PM with no walks).
 
-#### Chatbot
-```
-POST /chat
-Content-Type: application/json
 
-{
-  "message": "How much did Rex walk today?",
-  "petName": "Rex" // optional
-}
-```
 
 ## Development Workflow
 
@@ -182,7 +172,6 @@ The application includes comprehensive error handling:
 
 ## Future Enhancements
 
-- Database persistence (MongoDB/PostgreSQL)
 - User authentication and multi-user support
 - Activity analytics and trends
 - Push notifications for reminders
